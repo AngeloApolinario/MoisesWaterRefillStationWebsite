@@ -8,6 +8,12 @@ const orderSchema = new mongoose.Schema(
     hasContainer: { type: Boolean, required: true },
     delivery: { type: Boolean, required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
+    status: {
+      type: String,
+      enum: ["Pending", "On the Way", "Delivered"],
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );

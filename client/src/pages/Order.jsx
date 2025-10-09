@@ -169,7 +169,7 @@ export default function Order({ handleProtectedAction, user }) {
             </li>
           </ul>
           <div className="mt-5 p-4 bg-blue-100 rounded-xl shadow-inner text-center">
-            💧 <strong>Tip:</strong> Stay hydrated and always reuse your water
+            <strong>Tip:</strong> Stay hydrated and always reuse your water
             containers to help the environment!
           </div>
         </div>

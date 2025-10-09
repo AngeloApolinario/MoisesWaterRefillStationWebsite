@@ -62,4 +62,23 @@ module.exports = (req, res, next) => {
   }
 };
 
+router.put("/users/:id", async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: req.body.name,
+        email: req.body.email,
+        address: req.body.address,
+        phone: req.body.phone,
+      },
+      { new: true }
+    );
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;

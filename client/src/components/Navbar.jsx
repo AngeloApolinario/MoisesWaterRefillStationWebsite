@@ -1,12 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Droplets, User, LogOut, Box } from "lucide-react";
 import { scroller } from "react-scroll";
 
 export default function Navbar({ onAuthClick, user, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("hero");
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const sections = ["hero", "about", "services", "pricing", "contact"];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Track scroll position to set active section
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY + 80; // offset for navbar
+      let current = "hero";
+
+      sections.forEach((section) => {
+        const el = document.getElementById(section);
+        if (el && el.offsetTop <= scrollY) {
+          current = section;
+        }
+      });
+
+      setActiveSection(current);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // initial check
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleScrollTo = (section) => {
     if (location.pathname !== "/") {
@@ -30,6 +68,7 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
   return (
     <nav className="fixed top-0 left-0 w-full bg-white/70 backdrop-blur-md shadow-md z-50">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+        {/* Logo */}
         <h1
           className="text-2xl font-extrabold text-blue-700 flex items-center gap-2 cursor-pointer"
           onClick={() => handleScrollTo("hero")}
@@ -37,24 +76,24 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
           <Droplets className="text-blue-500 animate-pulse" /> Moises Water
         </h1>
 
+        {/* Navigation Links */}
         <div className="hidden md:flex space-x-6">
-          {[
-            { name: "Home", to: "hero" },
-            { name: "About", to: "about" },
-            { name: "Services", to: "services" },
-            { name: "Pricing", to: "pricing" },
-            { name: "Contact", to: "contact" },
-          ].map((link) => (
+          {sections.map((section) => (
             <button
-              key={link.name}
-              onClick={() => handleScrollTo(link.to)}
-              className="relative cursor-pointer font-semibold text-gray-700 hover:text-blue-500 transition-colors duration-300"
+              key={section}
+              onClick={() => handleScrollTo(section)}
+              className={`relative cursor-pointer font-semibold text-gray-700 hover:text-blue-500 transition-colors duration-300 ${
+                activeSection === section
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : ""
+              }`}
             >
-              {link.name}
+              {section.charAt(0).toUpperCase() + section.slice(1)}
             </button>
           ))}
         </div>
 
+        {/* Auth / Profile Section */}
         <div className="flex items-center space-x-4 relative">
           {!user ? (
             <button
@@ -64,7 +103,7 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
               Login / Register
             </button>
           ) : (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 transition duration-300"
@@ -75,13 +114,22 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
 
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 z-50">
-                  <button className="flex items-center gap-2 w-full px-4 py-2 hover:bg-blue-50 transition-colors">
+                  <button
+                    className="flex items-center gap-2 w-full px-4 py-2 hover:bg-blue-50 transition-colors"
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      navigate("/profile");
+                    }}
+                  >
                     <User className="w-4 h-4 text-blue-500" />
                     My Profile
                   </button>
                   <button
                     className="flex items-center gap-2 w-full px-4 py-2 hover:bg-blue-50 transition-colors"
-                    onClick={() => navigate("/my-orders")}
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      navigate("/my-orders");
+                    }}
                   >
                     <Box className="w-4 h-4 text-blue-500" />
                     My Orders
@@ -89,6 +137,7 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
                   <button
                     onClick={() => {
                       onLogout();
+                      setIsDropdownOpen(false);
                       navigate("/");
                     }}
                     className="flex items-center gap-2 w-full px-4 py-2 hover:bg-red-50 text-red-600 transition-colors"
@@ -102,16 +151,6 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
           )}
         </div>
       </div>
-
-      <style>
-        {`
-          .active-link {
-            color: #2563eb; /* blue-600 */
-            border-bottom: 2px solid #2563eb;
-            transition: all 0.3s ease-in-out;
-          }
-        `}
-      </style>
     </nav>
   );
 }

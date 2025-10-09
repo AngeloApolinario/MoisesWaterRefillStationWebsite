@@ -21,6 +21,7 @@ router.post("/", async (req, res) => {
       delivery,
       price,
       user,
+      status: "Pending",
     });
 
     await newOrder.save();
@@ -41,6 +42,30 @@ router.get("/", async (req, res) => {
   try {
     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
     res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!["Pending", "On the Way", "Delivered"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder)
+      return res.status(404).json({ message: "Order not found" });
+
+    res.json({ message: "Order status updated", order: updatedOrder });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

@@ -51,8 +51,22 @@ export default function MyOrders({ user }) {
     { size: 20, x: "80%", delay: 1.5 },
   ];
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-blue-200 text-blue-800";
+      case "On the Way":
+        return "bg-sky-400 text-white";
+      case "Delivered":
+        return "bg-teal-400 text-white";
+      default:
+        return "bg-gray-300 text-gray-700";
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-50 via-sky-100 to-blue-200 overflow-hidden py-10">
+      {/* Floating bubbles */}
       {bubbles.map((b, idx) => (
         <motion.div
           key={idx}
@@ -89,8 +103,17 @@ export default function MyOrders({ user }) {
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
-            className="p-6 bg-gradient-to-r from-blue-100 via-sky-200 to-blue-300 rounded-3xl shadow-2xl border border-blue-200"
+            className="relative p-6 bg-gradient-to-r from-blue-100 via-sky-200 to-blue-300 rounded-3xl shadow-2xl border border-blue-200"
           >
+            {/* Status badge */}
+            <span
+              className={`absolute top-4 right-4 px-3 py-1 rounded-full font-semibold text-sm ${getStatusColor(
+                order.status
+              )}`}
+            >
+              {order.status}
+            </span>
+
             <p>
               <strong>Name:</strong> {order.customerName}
             </p>

@@ -11,6 +11,7 @@ import Toast from "./components/Toast";
 import Home from "./pages/Home";
 import Order from "./pages/Order";
 import MyOrders from "./pages/MyOrders";
+import Profile from "./pages/Profile";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -70,6 +71,10 @@ function App() {
             }
           />
           <Route path="/my-orders" element={<MyOrders user={user} />} />
+          <Route
+            path="/profile"
+            element={<Profile user={user} setUser={setUser} />}
+          />
         </Routes>
       </div>
     </Router>

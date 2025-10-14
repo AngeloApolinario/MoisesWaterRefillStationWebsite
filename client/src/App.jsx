@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import AuthModal from "./components/AuthModal";
 import Toast from "./components/Toast";
@@ -12,6 +7,8 @@ import Home from "./pages/Home";
 import Order from "./pages/Order";
 import MyOrders from "./pages/MyOrders";
 import Profile from "./pages/Profile";
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -40,23 +37,33 @@ function App() {
 
   return (
     <Router>
-      <Navbar
-        onAuthClick={() => setIsAuthOpen(true)}
-        user={user}
-        onLogout={handleLogout}
-      />
+      {!window.location.pathname.startsWith("/admin") && (
+        <Navbar
+          onAuthClick={() => setIsAuthOpen(true)}
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
+
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         onLogin={handleLogin}
       />
+
       <Toast
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ message: "", type: "success" })}
       />
-      <div className="pt-16">
+
+      <div
+        className={
+          !window.location.pathname.startsWith("/admin") ? "pt-16" : ""
+        }
+      >
         <Routes>
+          {/* User routes */}
           <Route
             path="/"
             element={<Home handleProtectedAction={handleProtectedAction} />}
@@ -75,6 +82,10 @@ function App() {
             path="/profile"
             element={<Profile user={user} setUser={setUser} />}
           />
+
+          {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
       </div>
     </Router>

@@ -20,7 +20,6 @@ export default function HomePage({ handleProtectedAction }) {
   });
 
   useEffect(() => {
-    // Fetch website status from backend (full URL)
     axios
       .get("http://localhost:8000/api/admin/website-status")
       .then((res) => {
@@ -90,7 +89,49 @@ export default function HomePage({ handleProtectedAction }) {
         {/* Background blobs */}
         <div className="absolute w-[900px] h-[900px] bg-blue-500 rounded-full blur-3xl -top-40 -left-20 opacity-40 animate-pulse-slow z-0" />
         <div className="absolute w-[700px] h-[700px] bg-sky-300 rounded-full blur-3xl -bottom-40 -right-20 opacity-30 animate-pulse-slow z-0" />
-
+        <svg
+          className="absolute bottom-0 w-full h-40 z-10"
+          viewBox="0 0 1440 320"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          <motion.path
+            fill="#ffffff"
+            fillOpacity="0.6"
+            d="M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z"
+            animate={{
+              d: [
+                "M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z",
+                "M0,180 C360,120 1080,240 1440,180 L1440,320 L0,320 Z",
+                "M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z",
+              ],
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "easeInOut",
+            }}
+          />
+          <motion.path
+            fill="#ffffff"
+            fillOpacity="0.4"
+            d="M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z"
+            animate={{
+              d: [
+                "M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z",
+                "M0,220 C360,160 1080,240 1440,220 L1440,320 L0,320 Z",
+                "M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z",
+              ],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "easeInOut",
+            }}
+          />
+        </svg>
         {/* Floating bubbles */}
         {bubbles.map((b, idx) => (
           <motion.div

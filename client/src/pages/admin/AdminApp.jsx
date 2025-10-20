@@ -8,6 +8,7 @@ import {
   Droplets,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 import AdminDashboard from "./Dashboard";
 import AdminOrders from "./Orders";
@@ -30,6 +31,12 @@ export default function AdminApp() {
       icon: <SlidersHorizontal size={20} />,
     },
   ];
+
+  const handleLogout = () => {
+    // Clear authentication (adjust to your auth logic)
+    localStorage.removeItem("adminToken");
+    window.location.href = "/admin/login"; // redirect to login
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -77,18 +84,37 @@ export default function AdminApp() {
           })}
         </nav>
 
-        {/* Footer / Admin Info */}
-        {!isCollapsed && (
-          <div className="px-5 py-4 mt-auto border-t border-blue-700 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center text-white font-bold">
-              A
+        {/* Footer / Admin Info & Logout */}
+        <div
+          className={`px-5 py-4 mt-auto border-t border-blue-700 flex flex-col gap-3 ${
+            isCollapsed ? "items-center" : ""
+          }`}
+        >
+          {!isCollapsed && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center text-white font-bold">
+                A
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Admin</p>
+                <p className="text-xs text-blue-200">Administrator</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold">Admin</p>
-              <p className="text-xs text-blue-200">Administrator</p>
-            </div>
-          </div>
-        )}
+          )}
+
+          <button
+            onClick={handleLogout}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition ${
+              isCollapsed
+                ? "justify-center w-full"
+                : "bg-red-500 hover:bg-red-600 text-white"
+            }`}
+            title="Logout"
+          >
+            <LogOut size={20} />
+            {!isCollapsed && "Logout"}
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
@@ -98,10 +124,7 @@ export default function AdminApp() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="walkin" element={<AdminWalkIn />} />
-          <Route
-            path="website-control"
-            element={<AdminWebsiteControl />}
-          />{" "}
+          <Route path="website-control" element={<AdminWebsiteControl />} />
         </Routes>
       </main>
     </div>

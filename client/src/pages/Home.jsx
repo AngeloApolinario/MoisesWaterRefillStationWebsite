@@ -1,18 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Droplets,
-  Home,
   Info,
-  Users,
-  CheckCircle,
   ShoppingBag,
+  Users,
+  Home,
+  CheckCircle,
   Phone,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function HomePage({ handleProtectedAction }) {
   const navigate = useNavigate();
+  const [websiteStatus, setWebsiteStatus] = useState({
+    enabled: true,
+    reason: "",
+  });
+
+  useEffect(() => {
+    // Fetch website status from backend (full URL)
+    axios
+      .get("http://localhost:8000/api/admin/website-status")
+      .then((res) => {
+        setWebsiteStatus(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch website status:", err);
+      });
+  }, []);
+
   const bubbles = [
     { size: 20, x: "10%", delay: 0 },
     { size: 30, x: "25%", delay: 1 },
@@ -31,60 +49,52 @@ export default function HomePage({ handleProtectedAction }) {
   );
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-blue-100 text-gray-900">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-100 text-gray-900 relative">
+      {/* WEBSITE UNAVAILABLE OVERLAY */}
+      {!websiteStatus.enabled && (
+        <div className="absolute inset-0 z-50 bg-black/70 flex flex-col items-center justify-center text-center px-4">
+          <motion.h2
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-4xl font-bold text-red-500 mb-4"
+          >
+            Website Unavailable
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-white text-lg"
+          >
+            Sorry, we are not accepting orders right now.
+          </motion.p>
+          {websiteStatus.reason && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-white mt-2 font-semibold"
+            >
+              Reason: {websiteStatus.reason}
+            </motion.p>
+          )}
+        </div>
+      )}
+
+      {/* HERO SECTION */}
       <section
-        id="hero"
+        id="home"
         className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-sky-200 via-blue-300 to-sky-400 text-center px-6 overflow-hidden"
       >
+        {/* Background blobs */}
         <div className="absolute w-[900px] h-[900px] bg-blue-500 rounded-full blur-3xl -top-40 -left-20 opacity-40 animate-pulse-slow z-0" />
         <div className="absolute w-[700px] h-[700px] bg-sky-300 rounded-full blur-3xl -bottom-40 -right-20 opacity-30 animate-pulse-slow z-0" />
 
-        <svg
-          className="absolute bottom-0 w-full h-60 z-10"
-          viewBox="0 0 1440 320"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-        >
-          <motion.path
-            fill="#ffffff"
-            fillOpacity="0.6"
-            d="M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z"
-            animate={{
-              d: [
-                "M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z",
-                "M0,180 C360,120 1080,240 1440,180 L1440,320 L0,320 Z",
-                "M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z",
-              ],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              repeatType: "loop",
-              ease: "easeInOut",
-            }}
-          />
-          <motion.path
-            fill="#ffffff"
-            fillOpacity="0.4"
-            d="M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z"
-            animate={{
-              d: [
-                "M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z",
-                "M0,220 C360,160 1080,240 1440,220 L1440,320 L0,320 Z",
-                "M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z",
-              ],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              repeatType: "loop",
-              ease: "easeInOut",
-            }}
-          />
-        </svg>
-
+        {/* Floating bubbles */}
         {bubbles.map((b, idx) => (
           <motion.div
+            key={idx}
             className="absolute bg-white rounded-full opacity-40 z-20"
             style={{
               width: b.size,
@@ -108,6 +118,7 @@ export default function HomePage({ handleProtectedAction }) {
           />
         ))}
 
+        {/* Hero Content */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,18 +133,34 @@ export default function HomePage({ handleProtectedAction }) {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <button
-              onClick={() => handleProtectedAction(() => navigate("/order"))}
-              className="px-6 py-3 bg-blue-600 text-white rounded-2xl shadow-lg hover:bg-blue-700 flex items-center gap-2"
+              onClick={() =>
+                websiteStatus.enabled
+                  ? handleProtectedAction(() => navigate("/order"))
+                  : null
+              }
+              className={`px-6 py-3 text-white rounded-2xl shadow-lg flex items-center gap-2 ${
+                websiteStatus.enabled
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-500 cursor-not-allowed"
+              }`}
             >
               <ShoppingBag size={18} /> Order Now
             </button>
-            <button className="px-6 py-3 border border-white text-white rounded-2xl hover:bg-white/20 transition flex items-center gap-2">
+            <button
+              onClick={() => {
+                const aboutSection = document.getElementById("about");
+                if (aboutSection)
+                  aboutSection.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="px-6 py-3 border border-white text-white rounded-2xl hover:bg-white/20 transition flex items-center gap-2"
+            >
               <Info size={18} /> Learn More
             </button>
           </div>
         </motion.div>
       </section>
 
+      {/* ABOUT SECTION */}
       <section
         id="about"
         className="relative py-20 px-6 max-w-6xl mx-auto text-center bg-white overflow-hidden"
@@ -164,6 +191,7 @@ export default function HomePage({ handleProtectedAction }) {
         </p>
       </section>
 
+      {/* SERVICES SECTION */}
       <section
         id="services"
         className="relative py-20 bg-gradient-to-b from-blue-50 to-blue-100 px-6 overflow-hidden"
@@ -205,6 +233,7 @@ export default function HomePage({ handleProtectedAction }) {
         </div>
       </section>
 
+      {/* TESTIMONIALS SECTION */}
       <section
         id="testimonials"
         className="relative py-20 bg-gradient-to-b from-sky-100 to-white px-6 overflow-hidden"
@@ -255,6 +284,7 @@ export default function HomePage({ handleProtectedAction }) {
         </div>
       </section>
 
+      {/* PRICING SECTION */}
       <section
         id="pricing"
         className="relative py-20 bg-gradient-to-b from-blue-100 to-blue-200 px-6 overflow-hidden"
@@ -273,17 +303,9 @@ export default function HomePage({ handleProtectedAction }) {
         </h3>
         <div className="mt-12 grid md:grid-cols-3 gap-8 max-w-6xl mx-auto relative z-10">
           {[
-            { plan: "Basic Refill", price: "₱25", desc: "Per 5 Gallons" },
-            {
-              plan: "Delivery Plan",
-              price: "₱150",
-              desc: "Weekly home delivery",
-            },
-            {
-              plan: "Monthly Plan",
-              price: "₱500",
-              desc: "Unlimited walk-in refills",
-            },
+            { plan: "No Container", price: "₱200", desc: "Per 5 Gallons" },
+            { plan: "Delivery Plan", price: "₱30", desc: "Per delivery" },
+            { plan: "Pickup Plan", price: "₱25", desc: "Per refill" },
           ].map((p, idx) => (
             <motion.div
               key={idx}
@@ -293,7 +315,14 @@ export default function HomePage({ handleProtectedAction }) {
               <h4 className="text-xl font-semibold">{p.plan}</h4>
               <p className="mt-2 text-3xl font-bold text-blue-600">{p.price}</p>
               <p className="mt-2 text-gray-600">{p.desc}</p>
-              <button className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+              <button
+                disabled={!websiteStatus.enabled}
+                className={`mt-6 px-6 py-3 rounded-xl font-bold transition ${
+                  websiteStatus.enabled
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-500 text-white cursor-not-allowed"
+                }`}
+              >
                 Choose Plan
               </button>
             </motion.div>
@@ -301,6 +330,7 @@ export default function HomePage({ handleProtectedAction }) {
         </div>
       </section>
 
+      {/* CTA SECTION */}
       <section
         id="cta"
         className="relative py-20 bg-gradient-to-r from-blue-500 via-sky-500 to-blue-600 text-white text-center overflow-hidden"
@@ -315,13 +345,22 @@ export default function HomePage({ handleProtectedAction }) {
           Order now and enjoy refreshing water straight from Moises Water.
         </p>
         <button
-          onClick={() => handleProtectedAction(() => navigate("/order"))}
-          className="mt-6 m-auto px-8 py-3 bg-white text-blue-600 rounded-2xl font-bold shadow-lg hover:bg-gray-100 flex items-center gap-2 relative z-10"
+          onClick={() =>
+            websiteStatus.enabled
+              ? handleProtectedAction(() => navigate("/order"))
+              : null
+          }
+          className={`mt-6 m-auto px-8 py-3 rounded-2xl font-bold shadow-lg flex items-center gap-2 relative z-10 ${
+            websiteStatus.enabled
+              ? "bg-white text-blue-600 hover:bg-gray-100"
+              : "bg-gray-500 text-white cursor-not-allowed"
+          }`}
         >
           <ShoppingBag size={18} /> Get Started
         </button>
       </section>
 
+      {/* FOOTER */}
       <footer
         id="contact"
         className="relative bg-gray-900 text-gray-300 py-12 overflow-hidden"

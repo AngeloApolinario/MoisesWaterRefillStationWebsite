@@ -9,6 +9,7 @@ import MyOrders from "./pages/MyOrders";
 import Profile from "./pages/Profile";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminApp from "./pages/admin/AdminApp";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -85,7 +86,8 @@ function App() {
 
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+          <Route path="/admin/*" element={<AdminApp />} />
         </Routes>
       </div>
     </Router>

@@ -5,12 +5,12 @@ import { scroller } from "react-scroll";
 
 export default function Navbar({ onAuthClick, user, onLogout }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("hero");
+  const [activeSection, setActiveSection] = useState("home");
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const sections = ["hero", "about", "services", "pricing", "contact"];
+  const sections = ["home", "about", "services", "pricing", "contact"];
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY + 80; // offset for navbar
-      let current = "hero";
+      let current = "home";
 
       sections.forEach((section) => {
         const el = document.getElementById(section);
@@ -71,7 +71,7 @@ export default function Navbar({ onAuthClick, user, onLogout }) {
         {/* Logo */}
         <h1
           className="text-2xl font-extrabold text-blue-700 flex items-center gap-2 cursor-pointer"
-          onClick={() => handleScrollTo("hero")}
+          onClick={() => handleScrollTo("home")}
         >
           <Droplets className="text-blue-500 animate-pulse" /> Moises Water
         </h1>

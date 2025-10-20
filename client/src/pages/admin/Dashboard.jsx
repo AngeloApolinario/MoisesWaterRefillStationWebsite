@@ -1,311 +1,247 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
 import {
-  Droplets,
-  Users,
-  ClipboardList,
-  CheckCircle,
-  XCircle,
-  Plus,
-  TrendingUp,
-  Star,
-} from "lucide-react";
+  Chart as ChartJS,
+  LineElement,
+  BarElement,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { TrendingUp, Users, Droplets, Clock } from "lucide-react";
+
+ChartJS.register(
+  LineElement,
+  BarElement,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend
+);
 
 export default function AdminDashboard() {
-  const [orders, setOrders] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [walkInOrder, setWalkInOrder] = useState({
-    customerName: "",
-    phone: "",
-    address: "",
-    hasContainer: false,
-    delivery: false,
-  });
-
   const [stats, setStats] = useState({
+    dailySales: [],
+    monthlyComparison: [],
+    yearlySales: [],
+    totalSales: 0,
     totalOrders: 0,
-    pending: 0,
-    onTheWay: 0,
-    delivered: 0,
-    cancelled: 0,
-    monthlySales: 0,
-    topBuyer: null,
+    walkInOrders: 0,
+    deliveryOrders: 0,
+    topBuyers: [],
   });
 
-  // Fetch all orders, users, and monthly sales
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboard = async () => {
       try {
-        const [orderRes, userRes, salesRes] = await Promise.all([
-          axios.get("http://localhost:8000/api/admin/orders"),
-          axios.get("http://localhost:8000/api/admin/users"),
-          axios.get("http://localhost:8000/api/admin/sales/monthly"),
-        ]);
-
-        setOrders(orderRes.data);
-        setUsers(userRes.data);
-
-        // Calculate stats
-        const counts = {
-          totalOrders: orderRes.data.length,
-          pending: orderRes.data.filter((o) => o.status === "Pending").length,
-          onTheWay: orderRes.data.filter((o) => o.status === "On The Way")
-            .length,
-          delivered: orderRes.data.filter((o) => o.status === "Delivered")
-            .length,
-          cancelled: orderRes.data.filter((o) => o.status === "Cancelled")
-            .length,
-          monthlySales: salesRes.data.totalSales || 0,
-        };
-
-        // Calculate top buyer
-        const buyerMap = {};
-        orderRes.data.forEach((o) => {
-          if (o.user && o.user.name) {
-            buyerMap[o.user.name] = (buyerMap[o.user.name] || 0) + 1;
-          }
-        });
-
-        const topBuyerName =
-          Object.keys(buyerMap).length > 0
-            ? Object.entries(buyerMap).sort((a, b) => b[1] - a[1])[0][0]
-            : null;
-
-        counts.topBuyer = topBuyerName;
-
-        setStats(counts);
+        const res = await axios.get(
+          "http://localhost:8000/api/admin/dashboard"
+        );
+        setStats(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch dashboard:", err);
       }
     };
-    fetchData();
+    fetchDashboard();
   }, []);
 
-  const handleStatusUpdate = async (id, newStatus) => {
-    try {
-      await axios.put(`http://localhost:8000/api/admin/orders/${id}`, {
-        status: newStatus,
-      });
-      setOrders((prev) =>
-        prev.map((order) =>
-          order._id === id ? { ...order, status: newStatus } : order
-        )
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const safeTotalSales = stats.totalSales ?? 0;
+  const safeTotalOrders = stats.totalOrders ?? 0;
+  const avgOrderValue =
+    safeTotalOrders > 0 ? (safeTotalSales / safeTotalOrders).toFixed(2) : 0;
 
-  const handleWalkInSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("http://localhost:8000/api/admin/walkin", walkInOrder);
-      alert("Walk-in order added successfully!");
-      setWalkInOrder({
-        customerName: "",
-        phone: "",
-        address: "",
-        hasContainer: false,
-        delivery: false,
-      });
-    } catch (err) {
-      console.error(err);
-      alert("Error creating walk-in order.");
-    }
-  };
+  const currentMonthData = stats.monthlyComparison.filter((m) =>
+    m.month?.toLowerCase().includes("oct")
+  );
+  const previousMonthData = stats.monthlyComparison.filter(
+    (m) => !m.month?.toLowerCase().includes("oct")
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-sky-100 to-blue-200 p-10">
-      <h1 className="text-4xl font-extrabold text-blue-800 mb-10 text-center flex items-center justify-center gap-3">
-        <Droplets className="text-blue-600 animate-pulse" /> Admin Dashboard
+    <div className="p-8 bg-gradient-to-b from-blue-50 via-sky-100 to-blue-200 min-h-screen">
+      {/* Header */}
+      <h1 className="text-5xl font-extrabold text-blue-900 mb-12 flex items-center gap-4 animate-fade-in">
+        <Droplets className="text-blue-600 animate-pulse" />
+        Moises Refill Station <span className="text-sky-600">Analytics</span>
       </h1>
 
-      {/* STATISTICS */}
-      <div className="grid md:grid-cols-7 sm:grid-cols-2 gap-6 mb-10">
+      {/* Summary Cards */}
+      <div className="grid md:grid-cols-4 gap-6 mb-12">
         <StatCard
-          icon={<ClipboardList />}
+          icon={<TrendingUp className="text-green-500" />}
+          label="Total Sales"
+          value={`₱${safeTotalSales.toLocaleString()}`}
+          gradient="from-green-200 to-green-100"
+        />
+        <StatCard
+          icon={<Droplets className="text-blue-500" />}
           label="Total Orders"
-          value={stats.totalOrders}
-        />
-        <StatCard icon={<Users />} label="Users" value={users.length} />
-        <StatCard icon={<Droplets />} label="Pending" value={stats.pending} />
-        <StatCard
-          icon={<CheckCircle />}
-          label="Delivered"
-          value={stats.delivered}
+          value={safeTotalOrders}
+          gradient="from-blue-200 to-blue-100"
         />
         <StatCard
-          icon={<XCircle />}
-          label="Cancelled"
-          value={stats.cancelled}
+          icon={<Clock className="text-yellow-500" />}
+          label="Avg. Order Value"
+          value={`₱${avgOrderValue}`}
+          gradient="from-yellow-200 to-yellow-100"
         />
         <StatCard
-          icon={<TrendingUp />}
-          label="Sales This Month"
-          value={`₱${stats.monthlySales}`}
-        />
-        <StatCard
-          icon={<Star />}
-          label="Top Buyer"
-          value={stats.topBuyer || "N/A"}
+          icon={<Users className="text-purple-500" />}
+          label="Top Buyers"
+          value={stats.topBuyers?.length ?? 0}
+          gradient="from-purple-200 to-purple-100"
         />
       </div>
 
-      {/* ORDERS SECTION */}
-      <section className="bg-white p-6 rounded-2xl shadow-xl mb-10">
-        <h2 className="text-2xl font-bold mb-4 text-blue-700">Manage Orders</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm border">
-            <thead className="bg-blue-100 text-blue-800">
-              <tr>
-                <th className="p-3 text-left">Customer</th>
-                <th className="p-3 text-left">Phone</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order._id} className="border-b hover:bg-blue-50">
-                  <td className="p-3">{order.customerName}</td>
-                  <td className="p-3">{order.phone}</td>
-                  <td className="p-3 font-semibold text-blue-700">
-                    {order.status}
-                  </td>
-                  <td className="p-3 space-x-2">
-                    {["Pending", "On The Way", "Delivered", "Cancelled"].map(
-                      (s) => (
-                        <button
-                          key={s}
-                          onClick={() => handleStatusUpdate(order._id, s)}
-                          className={`px-2 py-1 rounded-lg text-white text-xs font-semibold ${
-                            s === "Delivered"
-                              ? "bg-green-500"
-                              : s === "Cancelled"
-                              ? "bg-red-500"
-                              : s === "On The Way"
-                              ? "bg-yellow-500"
-                              : "bg-blue-500"
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      )
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {/* Charts */}
+      <div className="grid lg:grid-cols-2 gap-10">
+        <ChartCard title="Daily Sales Trend">
+          <Bar
+            data={{
+              labels: stats.dailySales.map((d) => d.day),
+              datasets: [
+                {
+                  label: "Sales (₱)",
+                  data: stats.dailySales.map((d) => d.total ?? 0),
+                  backgroundColor: "rgba(37, 99, 235, 0.7)",
+                  borderRadius: 10,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true, mode: "index", intersect: false },
+              },
+              animation: { duration: 1000, easing: "easeOutQuart" },
+            }}
+          />
+        </ChartCard>
 
-      {/* USERS SECTION */}
-      <section className="bg-white p-6 rounded-2xl shadow-xl mb-10">
-        <h2 className="text-2xl font-bold mb-4 text-blue-700">
-          Registered Users
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm border">
-            <thead className="bg-blue-100 text-blue-800">
-              <tr>
-                <th className="p-3 text-left">Name</th>
-                <th className="p-3 text-left">Email</th>
-                <th className="p-3 text-left">Phone</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-b hover:bg-blue-50">
-                  <td className="p-3">{user.name}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3">{user.phone}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+        <ChartCard title="Monthly Sales Comparison (Histogram)">
+          <Bar
+            data={{
+              labels: stats.monthlyComparison.map((m) => m.month),
+              datasets: [
+                {
+                  label: "Current Month",
+                  data: currentMonthData.map((m) => m.total),
+                  backgroundColor: "rgba(37, 99, 235, 0.7)",
+                  borderRadius: 6,
+                },
+                {
+                  label: "Previous Month",
+                  data: previousMonthData.map((m) => m.total),
+                  backgroundColor: "rgba(156, 163, 175, 0.7)",
+                  borderRadius: 6,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: { legend: { position: "bottom" } },
+              scales: { x: { stacked: false }, y: { beginAtZero: true } },
+              animation: { duration: 1200, easing: "easeOutCubic" },
+            }}
+          />
+        </ChartCard>
+      </div>
 
-      {/* WALK-IN ORDER FORM */}
-      <section className="bg-white p-6 rounded-2xl shadow-xl">
-        <h2 className="text-2xl font-bold mb-4 text-blue-700 flex items-center gap-2">
-          <Plus className="text-blue-500" /> Add Walk-In Order
-        </h2>
-        <form
-          onSubmit={handleWalkInSubmit}
-          className="grid md:grid-cols-2 gap-4"
-        >
-          <input
-            type="text"
-            placeholder="Customer Name"
-            value={walkInOrder.customerName}
-            onChange={(e) =>
-              setWalkInOrder({ ...walkInOrder, customerName: e.target.value })
-            }
-            className="p-3 border rounded-lg"
-            required
+      <div className="grid lg:grid-cols-2 gap-10 mt-12">
+        <ChartCard title="Walk-in vs Delivery Orders" center>
+          <Doughnut
+            data={{
+              labels: ["Walk-in", "Delivery"],
+              datasets: [
+                {
+                  data: [stats.walkInOrders ?? 0, stats.deliveryOrders ?? 0],
+                  backgroundColor: ["#3b82f6", "#facc15"],
+                  hoverOffset: 8,
+                },
+              ],
+            }}
+            options={{
+              plugins: { legend: { position: "bottom" } },
+              animation: { animateRotate: true, duration: 1000 },
+            }}
           />
-          <input
-            type="text"
-            placeholder="Phone"
-            value={walkInOrder.phone}
-            onChange={(e) =>
-              setWalkInOrder({ ...walkInOrder, phone: e.target.value })
-            }
-            className="p-3 border rounded-lg"
-            required
+        </ChartCard>
+
+        <ChartCard title="Yearly Sales Report (Histogram)">
+          <Bar
+            data={{
+              labels: stats.yearlySales.map((y) => y.year),
+              datasets: [
+                {
+                  label: "Sales (₱)",
+                  data: stats.yearlySales.map((y) => y.total),
+                  backgroundColor: "rgba(16, 185, 129, 0.7)",
+                  borderRadius: 8,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: { legend: { position: "bottom" } },
+              scales: { y: { beginAtZero: true } },
+              animation: { duration: 1200, easing: "easeOutCubic" },
+            }}
           />
-          <input
-            type="text"
-            placeholder="Address (optional)"
-            value={walkInOrder.address}
-            onChange={(e) =>
-              setWalkInOrder({ ...walkInOrder, address: e.target.value })
-            }
-            className="p-3 border rounded-lg md:col-span-2"
-          />
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={walkInOrder.hasContainer}
-              onChange={(e) =>
-                setWalkInOrder({
-                  ...walkInOrder,
-                  hasContainer: e.target.checked,
-                })
-              }
-            />
-            <label>Has Container</label>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={walkInOrder.delivery}
-              onChange={(e) =>
-                setWalkInOrder({ ...walkInOrder, delivery: e.target.checked })
-              }
-            />
-            <label>Delivery</label>
-          </div>
-          <button
-            type="submit"
-            className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
-          >
-            Add Walk-In Order
-          </button>
-        </form>
-      </section>
+        </ChartCard>
+      </div>
+
+      {/* Top Buyers */}
+      <div className="mt-12">
+        <ChartCard title="Top 5 Buyers">
+          <ul className="divide-y divide-gray-200">
+            {stats.topBuyers?.map((buyer, idx) => (
+              <li
+                key={idx}
+                className="py-3 flex justify-between items-center text-gray-700 px-4 rounded-lg transition-all hover:bg-blue-50 hover:scale-105"
+              >
+                <span className="font-medium">{buyer.name || buyer._id}</span>
+                <span className="font-semibold text-blue-800">
+                  ₱{(buyer.total ?? buyer.totalSpent ?? 0).toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </ChartCard>
+      </div>
     </div>
   );
 }
 
-function StatCard({ icon, label, value }) {
+function StatCard({ icon, label, value, gradient }) {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-5 text-center border border-blue-100 hover:shadow-2xl transition duration-300">
-      <div className="flex justify-center text-blue-600 mb-3">{icon}</div>
-      <h3 className="text-xl font-bold text-blue-900">{label}</h3>
-      <p className="text-2xl font-extrabold text-blue-700">{value}</p>
+    <div
+      className={`flex items-center p-5 rounded-3xl shadow-xl gap-4 transition transform hover:scale-105 bg-gradient-to-br ${gradient} border border-white/30 backdrop-blur-md`}
+    >
+      <div className="p-3 bg-white/20 rounded-xl">{icon}</div>
+      <div>
+        <p className="text-gray-700 text-sm">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function ChartCard({ title, children, center }) {
+  return (
+    <div
+      className={`bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl transition transform hover:scale-[1.02] ${
+        center ? "flex flex-col items-center" : ""
+      }`}
+    >
+      <h2 className="text-xl font-semibold mb-4 text-blue-800">{title}</h2>
+      {children}
     </div>
   );
 }

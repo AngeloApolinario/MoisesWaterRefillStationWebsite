@@ -7,7 +7,7 @@ router.post("/", async (req, res) => {
     const { customerName, phone, address, hasContainer, delivery, user } =
       req.body;
 
-    if (!user) return res.status(400).json({ message: "User ID is required" });
+    if (!user) return res.status(400).json({ message: "Use3r ID is required" });
 
     let price = 0;
     if (!hasContainer) price = 200;

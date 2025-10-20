@@ -7,7 +7,13 @@ const orderSchema = new mongoose.Schema(
     address: { type: String },
     hasContainer: { type: Boolean, required: true },
     delivery: { type: Boolean, required: true },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+
+    price: { type: Number, required: true },
 
     status: {
       type: String,

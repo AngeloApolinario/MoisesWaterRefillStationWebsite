@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function Order({ handleProtectedAction, user }) {
+  const navigate = useNavigate();
   const [customerName, setCustomerName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
   const [address, setAddress] = useState(user?.address || "");
@@ -16,6 +18,13 @@ export default function Order({ handleProtectedAction, user }) {
     { size: 20, x: "80%", delay: 1 },
     { size: 25, x: "50%", delay: 0.5 },
     { size: 15, x: "30%", delay: 1.2 },
+  ];
+
+  const droplets = [
+    { size: 8, x: "20%", delay: 0 },
+    { size: 6, x: "40%", delay: 0.3 },
+    { size: 10, x: "60%", delay: 0.6 },
+    { size: 5, x: "80%", delay: 0.9 },
   ];
 
   const handleSubmit = async (e) => {
@@ -39,6 +48,11 @@ export default function Order({ handleProtectedAction, user }) {
         setAddress(user?.address || "");
         setHasContainer(false);
         setDelivery(false);
+
+        // Redirect to My Orders after 1s
+        setTimeout(() => {
+          navigate("/my-orders");
+        }, 1000);
       } catch (err) {
         console.error(err);
         setMessage(err.response?.data?.message || "Something went wrong");
@@ -51,10 +65,11 @@ export default function Order({ handleProtectedAction, user }) {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-50 via-sky-100 to-blue-200 flex items-center justify-center py-10 overflow-hidden">
+      {/* Floating bubbles */}
       {bubbles.map((b, idx) => (
         <motion.div
           key={idx}
-          className="absolute bg-white/30 rounded-full"
+          className="absolute bg-white/30 rounded-full z-0"
           style={{ width: b.size, height: b.size, left: b.x, bottom: 0 }}
           animate={{
             y: ["0%", "-400%"],
@@ -77,7 +92,7 @@ export default function Order({ handleProtectedAction, user }) {
         transition={{ duration: 1 }}
         className="relative z-10 w-full max-w-6xl bg-gradient-to-br from-blue-100 via-sky-200 to-blue-300 shadow-2xl rounded-3xl p-10 flex flex-col md:flex-row gap-10"
       >
-        <div className="md:w-1/2">
+        <div className="md:w-1/2 relative">
           <h2 className="text-4xl font-extrabold text-blue-900 mb-6 text-center drop-shadow-lg">
             Place Your Order
           </h2>
@@ -92,7 +107,7 @@ export default function Order({ handleProtectedAction, user }) {
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5 relative">
             <input
               type="text"
               value={customerName}
@@ -137,12 +152,38 @@ export default function Order({ handleProtectedAction, user }) {
                 className="w-full border border-blue-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               />
             )}
+
+            {/* Droplets above button */}
+            {droplets.map((d, idx) => (
+              <motion.div
+                key={idx}
+                className="absolute bg-blue-400/50 rounded-full z-0"
+                style={{
+                  width: d.size,
+                  height: d.size,
+                  left: d.x,
+                  bottom: "60px",
+                }}
+                animate={{
+                  y: ["0%", "-80%", "0%"],
+                  opacity: [0.6, 1, 0.6],
+                  scale: [1, 1.4, 1],
+                }}
+                transition={{
+                  duration: 2 + Math.random() * 1,
+                  repeat: Infinity,
+                  delay: d.delay,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+
             <motion.button
               type="submit"
               disabled={loading}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full py-3 bg-gradient-to-r from-blue-500 via-sky-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+              className="relative z-10 w-full py-3 bg-gradient-to-r from-blue-500 via-sky-500 to-blue-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
             >
               {loading ? "Processing..." : "Place Order"}
             </motion.button>
@@ -174,6 +215,51 @@ export default function Order({ handleProtectedAction, user }) {
           </div>
         </div>
       </motion.div>
+
+      {/* Wave at bottom */}
+      <svg
+        className="absolute bottom-0 w-full h-40 z-0"
+        viewBox="0 0 1440 320"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+      >
+        <motion.path
+          fill="#ffffff"
+          fillOpacity="0.6"
+          d="M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z"
+          animate={{
+            d: [
+              "M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z",
+              "M0,180 C360,120 1080,240 1440,180 L1440,320 L0,320 Z",
+              "M0,160 C360,240 1080,80 1440,160 L1440,320 L0,320 Z",
+            ],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            repeatType: "loop",
+            ease: "easeInOut",
+          }}
+        />
+        <motion.path
+          fill="#ffffff"
+          fillOpacity="0.4"
+          d="M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z"
+          animate={{
+            d: [
+              "M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z",
+              "M0,220 C360,160 1080,240 1440,220 L1440,320 L0,320 Z",
+              "M0,200 C360,280 1080,120 1440,200 L1440,320 L0,320 Z",
+            ],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            repeatType: "loop",
+            ease: "easeInOut",
+          }}
+        />
+      </svg>
     </div>
   );
 }

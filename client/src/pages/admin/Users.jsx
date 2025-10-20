@@ -5,7 +5,13 @@ import { UserPlus, Trash2, Edit } from "lucide-react";
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    address: "",
+    phone: "",
+  });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -36,7 +42,7 @@ export default function AdminUsers() {
         await axios.post("http://localhost:8000/api/admin/users", form);
         setMessage("User added successfully!");
       }
-      setForm({ name: "", email: "", phone: "" });
+      setForm({ name: "", email: "", password: "", address: "", phone: "" });
       setEditingUser(null);
       fetchUsers();
       setTimeout(() => setMessage(""), 3000);
@@ -66,6 +72,8 @@ export default function AdminUsers() {
     setForm({
       name: user.name,
       email: user.email,
+      password: "", // keep blank for security; admin can set a new password
+      address: user.address || "",
       phone: user.phone || "",
     });
   };
@@ -108,6 +116,21 @@ export default function AdminUsers() {
           className="p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition shadow-sm"
         />
         <input
+          type="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          required={!editingUser} // required only for new users
+          className="p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition shadow-sm"
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+          className="p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition shadow-sm"
+        />
+        <input
           type="text"
           placeholder="Phone"
           value={form.phone}
@@ -134,6 +157,8 @@ export default function AdminUsers() {
             <tr>
               <th className="p-3 text-left font-semibold">Name</th>
               <th className="p-3 text-left font-semibold">Email</th>
+              <th className="p-3 text-left font-semibold">Password</th>
+              <th className="p-3 text-left font-semibold">Address</th>
               <th className="p-3 text-left font-semibold">Phone</th>
               <th className="p-3 text-left font-semibold">Actions</th>
             </tr>
@@ -146,6 +171,8 @@ export default function AdminUsers() {
               >
                 <td className="p-3 font-medium">{u.name}</td>
                 <td className="p-3">{u.email}</td>
+                <td className="p-3">******</td>
+                <td className="p-3">{u.address}</td>
                 <td className="p-3">{u.phone}</td>
                 <td className="p-3 flex gap-2">
                   <button

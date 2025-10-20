@@ -33,22 +33,23 @@ export default function AdminApp() {
   ];
 
   const handleLogout = () => {
-    // Clear authentication (adjust to your auth logic)
     localStorage.removeItem("adminToken");
-    window.location.href = "/admin/login"; // redirect to login
+    window.location.href = "/admin/login";
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
-        className={`flex flex-col bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 text-white transition-all duration-300 ${
+        className={`fixed top-0 left-0 h-screen flex flex-col bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 text-white transition-all duration-300 shadow-2xl z-50 ${
           isCollapsed ? "w-20" : "w-64"
-        } shadow-2xl`}
+        }`}
       >
         {/* Logo / Toggle */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-blue-700">
-          {!isCollapsed && <h2 className="text-2xl font-bold">Admin Panel</h2>}
+          {!isCollapsed && (
+            <h2 className="text-2xl font-bold tracking-wide">Admin Panel</h2>
+          )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-1 rounded-md hover:bg-blue-700 transition"
@@ -62,17 +63,17 @@ export default function AdminApp() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 mt-6 space-y-2 px-2">
+        <nav className="flex-1 mt-6 space-y-2 px-2 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location.pathname.includes(item.path);
             return (
               <Link
                 key={item.name}
                 to={`/admin/${item.path}`}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md ${
                   isActive
                     ? "bg-white text-blue-900 shadow-lg"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:text-white"
                 }`}
               >
                 <div className="flex-shrink-0">{item.icon}</div>
@@ -86,13 +87,14 @@ export default function AdminApp() {
 
         {/* Footer / Admin Info & Logout */}
         <div
-          className={`px-5 py-4 mt-auto border-t border-blue-700 flex flex-col gap-3 ${
+          className={`px-5 py-4 border-t border-blue-700 flex flex-col gap-3 ${
             isCollapsed ? "items-center" : ""
           }`}
+          style={{ marginTop: "auto" }}
         >
           {!isCollapsed && (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center text-white font-bold shadow-inner">
                 A
               </div>
               <div>
@@ -104,9 +106,9 @@ export default function AdminApp() {
 
           <button
             onClick={handleLogout}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 shadow hover:shadow-lg ${
               isCollapsed
-                ? "justify-center w-full"
+                ? "justify-center w-full bg-red-500 hover:bg-red-600"
                 : "bg-red-500 hover:bg-red-600 text-white"
             }`}
             title="Logout"
@@ -118,7 +120,10 @@ export default function AdminApp() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 bg-gradient-to-b from-blue-50 via-sky-100 to-blue-200 transition-all">
+      <main
+        className={`flex-1 p-8 transition-all`}
+        style={{ marginLeft: isCollapsed ? "5rem" : "16rem" }}
+      >
         <Routes>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="orders" element={<AdminOrders />} />

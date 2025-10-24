@@ -445,8 +445,23 @@ export default function HomePage({ handleProtectedAction }) {
             <p className="flex items-center gap-2">
               <Info size={16} /> moiseswater@gmail.com
             </p>
+
+            {/* Google Map Embed */}
+            <div className="mt-4 w-full h-48 rounded-xl overflow-hidden shadow-lg">
+              <iframe
+                title="Moises Water Location"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3851.123456789!2d121.0054321!3d15.6765432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33962f2b4f123456%3A0xabcdef123456789!2sSan+Francisco%2C+Llanera%2C+Nueva+Ecija!5e0!3m2!1sen!2sph!4v1690000000000!5m2!1sen!2sph"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
           </div>
         </div>
+
         <div className="text-center mt-10 text-sm text-gray-500 relative z-10">
           © {new Date().getFullYear()} Moises Water Refill Station. All rights
           reserved.

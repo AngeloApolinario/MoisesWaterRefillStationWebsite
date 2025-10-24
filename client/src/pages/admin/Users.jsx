@@ -12,6 +12,26 @@ export default function AdminUsers() {
     address: "",
     phone: "",
   });
+  const streets = [
+    "Arrocena Street",
+    "Castanieto Street",
+    "Castillo Street",
+    "Corpuz Street",
+    "Esperanza Street",
+    "Fabros Street",
+    "Felix Street",
+    "Labiano Street",
+    "Lagasca Street",
+    "Mendoza Street",
+    "Natividad Street",
+    "Paras Street",
+    "Reyes Street",
+    "Sevilla Street",
+    "Silao Street",
+    "Taguan Street",
+    "Vicencio Street",
+  ];
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -120,16 +140,26 @@ export default function AdminUsers() {
           placeholder="Password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
-          required={!editingUser} // required only for new users
+          required={!editingUser}
           className="p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition shadow-sm"
         />
-        <input
-          type="text"
-          placeholder="Address"
+        <select
+          name="address"
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
           className="p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition shadow-sm"
-        />
+          required
+        >
+          <option value="" disabled>
+            Select a street
+          </option>
+          {streets.map((street) => (
+            <option key={street} value={street}>
+              {street}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           placeholder="Phone"

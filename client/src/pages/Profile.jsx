@@ -4,6 +4,26 @@ import { Droplets } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Profile({ user, setUser }) {
+  const streets = [
+    "Arrocena Street",
+    "Castanieto Street",
+    "Castillo Street",
+    "Corpuz Street",
+    "Esperanza Street",
+    "Fabros Street",
+    "Felix Street",
+    "Labiano Street",
+    "Lagasca Street",
+    "Mendoza Street",
+    "Natividad Street",
+    "Paras Street",
+    "Reyes Street",
+    "Sevilla Street",
+    "Silao Street",
+    "Taguan Street",
+    "Vicencio Street",
+  ];
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -25,7 +45,7 @@ export default function Profile({ user, setUser }) {
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/auth/users/${user._id}`,
+        `http://localhost:8000/api/auth/users/${user._id}`,
         formData
       );
       setUser(res.data);
@@ -38,7 +58,6 @@ export default function Profile({ user, setUser }) {
     }
   };
 
-  // Bubbles array
   const bubbles = [
     { size: 20, x: "10%", delay: 0 },
     { size: 30, x: "25%", delay: 1 },
@@ -94,29 +113,87 @@ export default function Profile({ user, setUser }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-          {[
-            { name: "name", label: "Full Name", type: "text" },
-            { name: "email", label: "Email Address", type: "email" },
-            { name: "address", label: "Address", type: "text" },
-            { name: "phone", label: "Phone Number", type: "text" },
-          ].map((field) => (
-            <div key={field.name} className="relative">
-              <input
-                type={field.type}
-                name={field.name}
-                value={formData[field.name]}
-                onChange={handleChange}
-                placeholder=" "
-                className="peer w-full border border-blue-200 rounded-lg px-4 pt-5 pb-2 bg-white/60 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 placeholder-transparent"
-              />
-              <label
-                htmlFor={field.name}
-                className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-600 peer-focus:text-sm"
-              >
-                {field.label}
-              </label>
-            </div>
-          ))}
+          {/* Full Name */}
+          <div className="relative">
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder=" "
+              className="peer w-full border border-blue-200 rounded-lg px-4 pt-5 pb-2 bg-white/60 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 placeholder-transparent"
+              required
+            />
+            <label
+              htmlFor="name"
+              className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-600 peer-focus:text-sm"
+            >
+              Full Name
+            </label>
+          </div>
+
+          {/* Email */}
+          <div className="relative">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder=" "
+              className="peer w-full border border-blue-200 rounded-lg px-4 pt-5 pb-2 bg-white/60 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 placeholder-transparent"
+              required
+            />
+            <label
+              htmlFor="email"
+              className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-600 peer-focus:text-sm"
+            >
+              Email Address
+            </label>
+          </div>
+
+          {/* Address Dropdown */}
+          <div className="relative">
+            <select
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="peer w-full border border-blue-200 rounded-lg px-4 pt-5 pb-2 bg-white/60 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
+              required
+            >
+              <option value="" disabled>
+                Select your street
+              </option>
+              {streets.map((street) => (
+                <option key={street} value={street}>
+                  {street}
+                </option>
+              ))}
+            </select>
+            <label
+              htmlFor="address"
+              className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-focus:top-1 peer-focus:text-blue-600 peer-focus:text-sm"
+            >
+              Street
+            </label>
+          </div>
+
+          {/* Phone */}
+          <div className="relative">
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder=" "
+              className="peer w-full border border-blue-200 rounded-lg px-4 pt-5 pb-2 bg-white/60 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 placeholder-transparent"
+            />
+            <label
+              htmlFor="phone"
+              className="absolute left-3 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-blue-600 peer-focus:text-sm"
+            >
+              Phone Number
+            </label>
+          </div>
 
           <button
             type="submit"

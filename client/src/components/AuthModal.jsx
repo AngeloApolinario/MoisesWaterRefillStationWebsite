@@ -12,6 +12,26 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
     email: "",
     password: "",
   });
+  const streets = [
+    "Arrocena Street",
+    "Castanieto Street",
+    "Castillo Street",
+    "Corpuz Street",
+    "Esperanza Street",
+    "Fabros Street",
+    "Felix Street",
+    "Labiano Street",
+    "Lagasca Street",
+    "Mendoza Street",
+    "Natividad Street",
+    "Paras Street",
+    "Reyes Street",
+    "Sevilla Street",
+    "Silao Street",
+    "Taguan Street",
+    "Vicencio Street",
+  ];
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
@@ -85,7 +105,6 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ type: "spring", stiffness: 100 }}
         >
-          {/* LEFT SIDE */}
           <div className="relative bg-gradient-to-b from-blue-400 via-sky-400 to-blue-500 flex flex-col items-center justify-center p-6 text-center">
             <motion.div
               className="absolute w-64 h-64 bg-blue-300 rounded-full blur-3xl opacity-40 animate-pulse"
@@ -149,14 +168,23 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
                     className="w-full p-3 rounded-xl border border-blue-300 focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition"
                     required
                   />
-                  <input
-                    type="text"
+                  <select
                     name="address"
-                    placeholder="Address"
                     value={formData.address}
                     onChange={handleChange}
                     className="w-full p-3 rounded-xl border border-blue-300 focus:ring-2 focus:ring-blue-400 outline-none shadow-sm transition"
-                  />
+                    required
+                  >
+                    <option value="" disabled>
+                      Select your street
+                    </option>
+                    {streets.map((street) => (
+                      <option key={street} value={street}>
+                        {street}
+                      </option>
+                    ))}
+                  </select>
+
                   <input
                     type="tel"
                     name="phone"

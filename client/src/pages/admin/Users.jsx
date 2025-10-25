@@ -12,6 +12,7 @@ export default function AdminUsers() {
     address: "",
     phone: "",
   });
+  const [searchQuery, setSearchQuery] = useState(""); // <-- Search state
   const streets = [
     "Arrocena Street",
     "Castanieto Street",
@@ -92,11 +93,18 @@ export default function AdminUsers() {
     setForm({
       name: user.name,
       email: user.email,
-      password: "", // keep blank for security; admin can set a new password
+      password: "", // keep blank for security
       address: user.address || "",
       phone: user.phone || "",
     });
   };
+
+  // 🔹 Filter users based on search query
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen">
@@ -117,7 +125,7 @@ export default function AdminUsers() {
       {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white/80 backdrop-blur-xl border border-blue-100 p-6 rounded-3xl shadow-lg grid md:grid-cols-3 gap-4 mb-10 transition-all hover:shadow-xl"
+        className="bg-white/80 backdrop-blur-xl border border-blue-100 p-6 rounded-3xl shadow-lg grid md:grid-cols-3 gap-4 mb-6 transition-all hover:shadow-xl"
       >
         <input
           type="text"
@@ -180,6 +188,17 @@ export default function AdminUsers() {
         </button>
       </form>
 
+      {/* 🔍 Search Input */}
+      <div className="mb-4 max-w-md mx-auto">
+        <input
+          type="text"
+          placeholder="Search by name or email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition shadow-sm"
+        />
+      </div>
+
       {/* Users Table */}
       <div className="bg-white/80 backdrop-blur-xl border border-blue-100 rounded-3xl shadow-lg p-6 overflow-x-auto transition hover:shadow-xl">
         <table className="min-w-full text-sm divide-y divide-gray-200">
@@ -194,7 +213,7 @@ export default function AdminUsers() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {users.map((u) => (
+            {filteredUsers.map((u) => (
               <tr
                 key={u._id}
                 className="hover:bg-blue-50 transition cursor-pointer"
@@ -220,6 +239,13 @@ export default function AdminUsers() {
                 </td>
               </tr>
             ))}
+            {filteredUsers.length === 0 && (
+              <tr>
+                <td colSpan={6} className="text-center p-4 text-gray-500">
+                  No users found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

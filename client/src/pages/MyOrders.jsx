@@ -60,7 +60,7 @@ export default function MyOrders({ user }) {
     switch (status) {
       case "Pending":
         return "bg-blue-200 text-blue-800";
-      case "On the Way":
+      case "On The Way":
         return "bg-sky-400 text-white";
       case "Delivered":
         return "bg-teal-400 text-white";
@@ -173,7 +173,7 @@ export default function MyOrders({ user }) {
           >
             <option value="All">All</option>
             <option value="Pending">Pending</option>
-            <option value="On the Way">On the Way</option>
+            <option value="On The Way">On The Way</option>
             <option value="Delivered">Delivered</option>
             <option value="Cancelled">Cancelled</option>
           </select>

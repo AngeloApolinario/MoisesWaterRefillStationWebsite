@@ -356,16 +356,7 @@ export default function HomePage({ handleProtectedAction }) {
               <h4 className="text-xl font-semibold">{p.plan}</h4>
               <p className="mt-2 text-3xl font-bold text-blue-600">{p.price}</p>
               <p className="mt-2 text-gray-600">{p.desc}</p>
-              <button
-                disabled={!websiteStatus.enabled}
-                className={`mt-6 px-6 py-3 rounded-xl font-bold transition ${
-                  websiteStatus.enabled
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-500 text-white cursor-not-allowed"
-                }`}
-              >
-                Choose Plan
-              </button>
+              
             </motion.div>
           ))}
         </div>
